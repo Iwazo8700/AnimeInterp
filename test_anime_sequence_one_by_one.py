@@ -17,7 +17,8 @@ import sys
 import cv2
 from utils.vis_flow import flow_to_color
 import json
-from skimage.measure import compare_psnr, compare_ssim
+# from skimage.measure import compare_psnr, compare_ssim
+from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 
 def save_flow_to_img(flow, des):
@@ -160,8 +161,11 @@ def validate(config):
                 gt_roi = gt[RoI_y:RoI_y+RoI_H, RoI_x:RoI_x+RoI_W, :]
 
                 # whole image value
-                this_psnr = compare_psnr(estimated, gt)
-                this_ssim = compare_ssim(estimated, gt, multichannel=True, gaussian=True)
+                # this_psnr = compare_psnr(estimated, gt)
+                # this_ssim = compare_ssim(estimated, gt, multichannel=True, gaussian=True)
+
+                this_psnr = peak_signal_noise_ratio(estimated, gt)
+                this_ssim = structural_similarity(estimated, gt, multichannel=True, gaussian=True)
                 this_ie = np.mean(np.sqrt(np.sum((estimated*255 - gt*255)**2, axis=2)))
 
                 psnrs[validationIndex][tt] = this_psnr
@@ -179,8 +183,10 @@ def validate(config):
                 num_level[diff[level]] += 1
 
                 # roi image value
-                this_roi_psnr = compare_psnr(estimated_roi, gt_roi)
-                this_roi_ssim = compare_ssim(estimated_roi, gt_roi, multichannel=True, gaussian=True)
+                # this_roi_psnr = compare_psnr(estimated_roi, gt_roi)
+                # this_roi_ssim = compare_ssim(estimated_roi, gt_roi, multichannel=True, gaussian=True)
+                this_roi_psnr = peak_signal_noise_ratio(estimated_roi, gt_roi)
+                this_roi_ssim = structural_similarity(estimated_roi, gt_roi, multichannel=True, gaussian=True)
                 
                 psnr_roi += this_roi_psnr
                 ssim_roi += this_roi_ssim
